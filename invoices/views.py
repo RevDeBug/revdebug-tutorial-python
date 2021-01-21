@@ -1,6 +1,8 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 import json
+import os
+import requests
 
 @csrf_exempt
 def index(order):
@@ -9,20 +11,16 @@ def index(order):
     invoice = ""
     orderDetailsArray = data['OrderDetails']
     for no in range(len(orderDetailsArray)):
-        print(orderDetailsArray[no])
         orderDetails=orderDetailsArray[no]
-        print(orderDetails['Discount'])
         discount = orderDetails['Discount']
+
         if discount > 100:
             continue
 
         if no == 0:
             invoice = "Invoice number " + data['OrderId'] + " for " + data['Customer']['CompanyName'] + "\n"
 
-        print(invoice)
+    resourceUrl = os.environ['InvoicesSenderAddress'] + "/Sender/Send?invoice=" + invoice
+    requests.get(resourceUrl)
 
-
-
-
-    print ('Raw Data: "%s"' % orderDetailsArray)
-    return HttpResponse("Hello, world. You're at the polls index.")
+    return HttpResponse("OK")
